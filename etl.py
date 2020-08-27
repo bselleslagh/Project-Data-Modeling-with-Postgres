@@ -10,6 +10,10 @@ from datetime import datetime
 
 
 def process_song_file(cur, filepath):
+    '''Given a database connection and a filepath, 
+    this function will read the JSON file within that path, 
+    load this within a pandas dataframe and then insert the info into the song and artist tables'''
+    
     # open song file
     df = pd.read_json(filepath, lines=True)
 
@@ -23,6 +27,10 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    '''Given a database connection and a filepath this function will read the JSON
+    log-files within that path, load this into a dataframe and then insert the info into
+    the user, songplay and time_data tables'''
+    
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -45,9 +53,8 @@ def process_log_file(cur, filepath):
 
     # insert user records
     for i, row in user_df.iterrows():
-        cur.execute(user_table_insert, row)
-    
-
+        cur.execute(user_table_insert, list(row))
+        
     # insert songplay records
     for index, row in df.iterrows():
         
@@ -66,6 +73,11 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    '''
+    Given a database connection and a filepath this function
+    will itterate over the filepath and list all files that end with the .json extension.
+    It will print the info of the amount of files found and processed into the terminal window.
+    '''
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -85,6 +97,9 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    '''
+    Process song and log data and load this info into the PostgreSQL database.
+    '''
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
